@@ -16,7 +16,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+     // Autenticacion de usuario no definida anteriormente.
+    public Optional<User> authenticate(String username) {
+        return userRepository.findByUsername(username);
+    }
     // Registro para un nuevo usuario
 
     public User register(User user) {
