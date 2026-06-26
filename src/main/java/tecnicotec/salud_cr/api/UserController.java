@@ -1,4 +1,4 @@
-package tecnicotec.salud_cr.controller;
+package tecnicotec.salud_cr.api;
 
 
 import lombok.RequiredArgsConstructor;
