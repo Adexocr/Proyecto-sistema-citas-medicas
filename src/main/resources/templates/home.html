@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio - Salud CR</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+
+<nav>
+    <span>Salud CR</span>
+    <span id="bienvenida"></span>
+    <button onclick="logout()">Cerrar sesión</button>
+</nav>
+
+<div class="container">
+    <h2>Bienvenido a la Clínica Salud CR</h2>
+    <p>Sistema de gestión de citas médicas</p>
+</div>
+
+<script>
+    const token = sessionStorage.getItem('token');
+    const username = sessionStorage.getItem('username');
+
+    if (!token) {
+        window.location.href = '/login';
+    }
+
+    document.getElementById('bienvenida').textContent = 'Hola, ' + username;
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+</script>
+
+</body>
+</html>
