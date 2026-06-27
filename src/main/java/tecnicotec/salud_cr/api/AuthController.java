@@ -29,7 +29,7 @@ public class AuthController {
     public static record LoginRequest(String username, String password) {
     }
 
-    public static record AuthResponse(String token, String tokenType, String expiresAt) {
+    public static record AuthResponse(String token, String tokenType, String expiresAt, List<String> roles) {
     }
 
 
@@ -51,6 +51,6 @@ public class AuthController {
                 .atOffset(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_DATE_TIME);
 
-        return ResponseEntity.ok(new AuthResponse(token, "Bearer", expIso));
+        return ResponseEntity.ok(new AuthResponse(token, "Bearer", expIso, roles));
     }
 }
