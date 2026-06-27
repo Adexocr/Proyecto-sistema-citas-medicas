@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Salud CR - Iniciar Sesión</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Salud CR</h1>
+    <h2>Iniciar Sesión</h2>
+
+    <div th:if="${error}" class="mensaje-error">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form id="loginForm">
+        <div>
+            <label>Nombre de usuario</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label>Contraseña</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="button" onclick="login()">Ingresar</button>
+    </form>
+</div>
+
+<script>
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Guardar token en sessionStorage para usarlo en las vistas
+            sessionStorage.setItem('token', data.token);
+            sessionStorage.setItem('username', username);
+            // Redirigir según rol
+            if (data.roles.includes('ADMIN')) {
+                window.location.href = '/admin/usuarios';
+            } else {
+                window.location.href = '/home';
+            }
+        } else {
+            alert('Credenciales inválidas');
+        }
+    }
+</script>
+
+</body>
+</html>
