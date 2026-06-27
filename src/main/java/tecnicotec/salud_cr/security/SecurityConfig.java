@@ -57,10 +57,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         // Rutas públicas — Vistas
                         .requestMatchers("/", "/login", "/home", "/css/**").permitAll()
+                        .requestMatchers("/", "/login", "/home", "/admin/**", "/css/**").permitAll()
                         // Solo ADMIN — API
                         .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/*/type").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
+
                         // Autenticado — API
                         .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
                         // Todo lo demás autenticado
