@@ -9,7 +9,7 @@
 
         <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-        <div th:if="${successMessage}" class="toast toast-success">
+        <div th:if="${successMessage}" id="toast" class="toast toast-success">
             <span>✔</span>
             <span th:text="${successMessage}" />
         </div>
@@ -18,7 +18,7 @@
             <div class="appointments-header">
                 <h2>Mis citas médicas</h2>
                 <button class="btn-primary" onclick="openCreateAppointmentModal()">
-                    Nueva cita
+                    Nueva cita +
                 </button>
             </div>
 
@@ -62,7 +62,7 @@
                          th:if="${appointment.status.name() == 'SCHEDULED'}">
 
                         <div class="appointment-card-header">
-                            <h4>Cita programada</h4>
+                            <h4>Cita próxima</h4>
 
                             <div class="appointment-card-actions">
                                 <button type="button"

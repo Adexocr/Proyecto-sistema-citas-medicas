@@ -595,10 +595,13 @@ body::after {
     justify-content: space-between;
     gap: .7rem;
     margin-bottom: .6rem;
+    align-content: center;
+    align-items: center;
 }
 
 .cancel-form {
     margin: 0;
+    padding: 0;
 }
 
 .btn-cancel-appointment {
@@ -616,5 +619,31 @@ body::after {
 
 .btn-cancel-appointment:hover {
     background: #EF4444;
+    color: #FFFFFF;
+}
+
+.appointment-card-actions {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    align-content: center;
+}
+
+.btn-edit-appointment {
+    margin-top: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: #E0F2FE;
+    color: #0369A1;
+    font-size: .65rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.btn-edit-appointment:hover {
+    background: #0284C7;
     color: #FFFFFF;
 }
