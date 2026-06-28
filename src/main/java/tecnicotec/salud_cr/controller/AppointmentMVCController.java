@@ -6,11 +6,11 @@ import tecnicotec.salud_cr.service.AppointmentService;
 
 @Controller
 @RequestMapping("/appointments")
-public class AppointmentController {
+public class AppointmentMVCController {
 
     private final AppointmentService appointmentService;
 
-    public AppointmentController(AppointmentService appointmentService) {
+    public AppointmentMVCController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
     }
 }

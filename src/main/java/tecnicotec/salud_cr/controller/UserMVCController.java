@@ -1,11 +1,11 @@
-package tecnicotec.salud_cr.api;
+package tecnicotec.salud_cr.controller;
 
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class ViewController {
+public class UserMVCController {
 
     // Página principal que redirige al login
     @GetMapping("/")

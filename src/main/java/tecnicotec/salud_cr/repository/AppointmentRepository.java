@@ -12,6 +12,5 @@ public interface AppointmentRepository extends CrudRepository<Appointment, Long>
             LocalDateTime appointmentDate,
             Appointment.Status status
     );
-
     List<Appointment> findByUserId(Long id);
 }

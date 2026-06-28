@@ -7,8 +7,8 @@ CREATE TABLE users (
                        name VARCHAR(100) NOT NULL,
                        email VARCHAR(150) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
-                       type VARCHAR(20) NOT NULL,
-                       created_at DATETIME NOT NULL
+                       type ENUM('ADMIN', 'REGULAR') NOT NULL DEFAULT 'REGULAR',
+                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE appointments (

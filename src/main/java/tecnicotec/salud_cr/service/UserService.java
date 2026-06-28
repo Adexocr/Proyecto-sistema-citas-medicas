@@ -16,31 +16,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-     // Autenticacion de usuario no definida anteriormente.
     public Optional<User> authenticate(String username) {
         return userRepository.findByUsername(username);
     }
-    // Registro para un nuevo usuario
 
     public User register(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalArgumentException(" El nombre de usuario ya existe");
+            throw new IllegalArgumentException("Username already exists");
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException(" El correo electrónico ya esta en uso");
+            throw new IllegalArgumentException("Email already exists");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setType(User.Type.REGULAR);
         user.setCreatedAt(LocalDateTime.now());
         return userRepository.save(user);
-
-    }
-
-    // Busqueda por nombre de usuario
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-
     }
 
     // Busqueda por id
@@ -56,7 +47,7 @@ public class UserService {
     // Actualizar el tipo/rol de usuario (solo admin)
     public User updateType(Long id, User.Type newType) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(" El usuario no existe"));
+                .orElseThrow(() -> new IllegalArgumentException("Username does not exist"));
         user.setType(newType);
         return userRepository.save(user);
     }
@@ -64,7 +55,7 @@ public class UserService {
     // Eliminar usuario (para admin)
     public void deleteById(Long id) {
         if  (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException(" El usuario no existe");
+            throw new IllegalArgumentException("User does not exist");
         }
         userRepository.deleteById(id);
         }
