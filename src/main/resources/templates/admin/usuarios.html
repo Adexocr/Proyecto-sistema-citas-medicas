@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Salud CR</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+
+<nav>
+    <div class="nav-brand">
+        <img th:src="@{/logo.jpeg}" alt="Logo">
+        <span>Clínica <em>Salud CR</em></span>
+    </div>
+    <span id="bienvenida"></span>
+    <button onclick="logout()">Cerrar sesión</button>
+</nav>
+
+<div class="container">
+    <h2>Panel Administrativo — Usuarios</h2>
+
+    <div id="mensaje" class="mensaje-exito" style="display:none"></div>
+    <div id="error" class="mensaje-error" style="display:none"></div>
+
+    <table id="tablaUsuarios">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const token = sessionStorage.getItem('token');
+    const username = sessionStorage.getItem('username');
+
+    // Si no hay token, redirigir al login
+    if (!token) {
+        window.location.href = '/login';
+    }
+
+    document.getElementById('bienvenida').textContent = 'Hola, ' + username;
+
+    // Cargar usuarios al iniciar
+    async function cargarUsuarios() {
+        const response = await fetch('/api/users', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (response.status === 403) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const usuarios = await response.json();
+        const tbody = document.getElementById('cuerpoTabla');
+        tbody.innerHTML = '';
+
+        usuarios.forEach(u => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${u.type}</td>
+                    <td>
+                        <select id="tipo-${u.id}">
+                            <option value="REGULAR" ${u.type === 'REGULAR' ? 'selected' : ''}>REGULAR</option>
+                            <option value="ADMIN" ${u.type === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+                        </select>
+                        <button class="btn-cambiar" onclick="cambiarRol(${u.id})">Cambiar</button>
+                        <button class="btn-eliminar" onclick="eliminar(${u.id})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function cambiarRol(id) {
+        const tipo = document.getElementById('tipo-' + id).value;
+        const response = await fetch(`/api/users/${id}/type`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ type: tipo })
+        });
+
+        if (response.ok) {
+            mostrarMensaje('Rol actualizado correctamente.');
+            cargarUsuarios();
+        } else {
+            mostrarError('Error al actualizar rol.');
+        }
+    }
+
+    async function eliminar(id) {
+        if (!confirm('¿Eliminar este usuario?')) return;
+
+        const response = await fetch(`/api/users/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (response.ok) {
+            mostrarMensaje('Usuario eliminado correctamente.');
+            cargarUsuarios();
+        } else {
+            mostrarError('Error al eliminar usuario.');
+        }
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+
+    function mostrarMensaje(msg) {
+        const el = document.getElementById('mensaje');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 3000);
+    }
+
+    function mostrarError(msg) {
+        const el = document.getElementById('error');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 3000);
+    }
+
+    cargarUsuarios();
+</script>
+
+</body>
+</html>
