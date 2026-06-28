@@ -8,14 +8,20 @@
 <body>
 
 <nav>
-    <span>Salud CR</span>
+    <div class="nav-brand">
+        <img th:src="@{/logo.jpeg}" alt="Logo">
+        <span>Clínica <em>Salud CR</em></span>
+    </div>
     <span id="bienvenida"></span>
     <button onclick="logout()">Cerrar sesión</button>
 </nav>
 
 <div class="container">
-    <h2>Bienvenido a la Clínica Salud CR</h2>
-    <p>Sistema de gestión de citas médicas</p>
+    <h2>Inicio</h2>
+    <div class="home-card">
+        <p>Bienvenido al sistema de gestión de citas médicas de Clínica Salud CR.</p>
+        <p>Desde aquí podrás consultar y gestionar tus citas médicas.</p>
+    </div>
 </div>
 
 <script>

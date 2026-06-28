@@ -8,7 +8,10 @@
 <body>
 
 <nav>
-    <span>Salud CR</span>
+    <div class="nav-brand">
+        <img th:src="@{/logo.jpeg}" alt="Logo">
+        <span>Clínica <em>Salud CR</em></span>
+    </div>
     <span id="bienvenida"></span>
     <button onclick="logout()">Cerrar sesión</button>
 </nav>
@@ -74,8 +77,8 @@
                             <option value="REGULAR" ${u.type === 'REGULAR' ? 'selected' : ''}>REGULAR</option>
                             <option value="ADMIN" ${u.type === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
                         </select>
-                        <button onclick="cambiarRol(${u.id})">Cambiar</button>
-                        <button onclick="eliminar(${u.id})">Eliminar</button>
+                        <button class="btn-cambiar" onclick="cambiarRol(${u.id})">Cambiar</button>
+                        <button class="btn-eliminar" onclick="eliminar(${u.id})">Eliminar</button>
                     </td>
                 </tr>
             `;
