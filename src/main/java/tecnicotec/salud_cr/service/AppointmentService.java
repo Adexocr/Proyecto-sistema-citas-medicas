@@ -8,6 +8,7 @@ import tecnicotec.salud_cr.repository.AppointmentRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentService {
@@ -24,30 +25,50 @@ public class AppointmentService {
 
     public void create(Long userId, AppointmentDto appointmentDto) {
         if (userId.equals(appointmentDto.getUserId())) {
-            validateAppointmentDate(appointmentDto.getAppointmentDate());
-            Appointment appointment = new Appointment();
-            appointment.setUserId(appointmentDto.getUserId());
-            appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
-            appointment.setReason(appointmentDto.getReason());
-            appointment.setStatus(Appointment.Status.SCHEDULED);
-            appointment.setCreatedAt(LocalDateTime.now());
+            if (appointmentDto.getAppointmentDate() != null && appointmentDto.getReason() != null) {
 
-            appointmentRepository.save(appointment);
+                List<Appointment> sameDateAppointments = getSameDateAppointments(appointmentDto.getAppointmentDate());
+                if (!sameDateAppointments.isEmpty()) {
+                    throw new  RuntimeException("Another appointment scheduled for the same time");
+                }
+
+                Appointment appointment = new Appointment();
+                appointment.setUserId(appointmentDto.getUserId());
+                appointment.setAppointmentDate(appointmentDto.getAppointmentDate());
+                appointment.setReason(appointmentDto.getReason());
+                appointment.setStatus(Appointment.Status.SCHEDULED);
+                appointment.setCreatedAt(LocalDateTime.now());
+                appointmentRepository.save(appointment);
+            } else {
+                throw new RuntimeException("Invalid appointment input data");
+            }
         } else {
-            throw new RuntimeException("User id invalid");
+            throw new RuntimeException("Invalid user id");
         }
     }
 
-    public void cancel(Long id) {
+    public void cancel(Long userId, Long id) {
         appointmentRepository.findById(id).ifPresent(appointment -> {
-            appointment.setStatus(Appointment.Status.CANCELLED);
-            appointmentRepository.save(appointment);
+            if (appointment.getAppointmentDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Can't cancel a past appointment.");
+            }
+            if (appointment.getUserId().equals(userId)) {
+                appointment.setStatus(Appointment.Status.CANCELLED);
+                appointmentRepository.save(appointment);
+            } else {
+                throw new RuntimeException("Invalid user id");
+            }
         });
     }
 
     public Appointment updateAppointment(Long userId, Long appointmentId, AppointmentDto appointmentDto) {
         if (userId.equals(appointmentDto.getUserId())) {
-            validateAppointmentDate(appointmentDto.getAppointmentDate());
+            List<Appointment> sameDateAppointments = getSameDateAppointments(appointmentDto.getAppointmentDate())
+                    .stream().filter(appointment -> !appointment.getId().equals(appointmentId)).toList();
+
+            if (!sameDateAppointments.isEmpty()) {
+                throw new  RuntimeException("Another appointment scheduled for the same time");
+            }
 
             Appointment appointment = appointmentRepository.findById(appointmentId)
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -64,23 +85,13 @@ public class AppointmentService {
         }
     }
 
-    private void validateAppointmentDate(LocalDateTime appointmentDate) {
+    private List<Appointment> getSameDateAppointments(LocalDateTime appointmentDate) {
         if (appointmentDate == null) {
             throw new RuntimeException("Appointment date missing");
         }
-
         if (appointmentDate.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Can't use a past date.");
         }
-
-        List<Appointment> appointments =
-                appointmentRepository.findByAppointmentDateAndStatus(
-                        appointmentDate,
-                        Appointment.Status.SCHEDULED
-                );
-
-        if (!appointments.isEmpty()) {
-            throw new RuntimeException("Appointment already exists for that time.");
-        }
+        return appointmentRepository.findByAppointmentDateAndStatus(appointmentDate, Appointment.Status.SCHEDULED);
     }
 }

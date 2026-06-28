@@ -1,34 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Inicio - Salud CR</title>
-    <link rel="stylesheet" th:href="@{/styles.css}">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Inicio - Salud CR</title>
+        <link rel="stylesheet" th:href="@{/styles.css}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<div class="container">
-    <h2 onClick="window.location.href = '/user/home';">Inicio</h2>
-    <div class="home-card">
-        <p>Bienvenido al sistema de gestión de citas médicas de Clínica Salud CR.</p>
-        <p>Desde aquí podrás consultar y gestionar tus citas médicas.</p>
-    </div>
-</div>
-
-<script>
-    async function logout() {
-        try {
-            await fetch('/api/auth/logout', {
-                method: 'POST'
-            });
-        } finally {
-            // Se saca al usuario aunque el servidor este abajo
-            window.location.href = '/login';
-        }
-    }
-</script>
-
-</body>
+        <div class="container">
+            <h2 onClick="window.location.href = '/user/home';">Inicio</h2>
+            <div class="home-card">
+                <p>Bienvenido al sistema de gestión de citas médicas de Clínica Salud CR.</p>
+                <p>Desde aquí podrás consultar y gestionar tus citas médicas.</p>
+            </div>
+        </div>
+    </body>
 </html>

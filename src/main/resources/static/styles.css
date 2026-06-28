@@ -430,8 +430,6 @@ body::after {
     }
 }
 
-/* ── MENÚ DE NAVEGACIÓN ───────────────────────── */
-
 .nav-links {
     display: flex;
     gap: 1.5rem;
@@ -459,4 +457,164 @@ body::after {
     align-items: center;
     gap: 1rem;
     color: white;
+}
+
+.appointments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background-color: #F4623A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #d94f2a;
+}
+
+.btn-secondary {
+    background-color: #E2E8F0;
+    color: #334155;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-card {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 430px;
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(27,46,107,0.25);
+    border-top: 4px solid #2ABFBF;
+}
+
+.modal-card h3 {
+    color: #1B2E6B;
+    margin-bottom: 1.2rem;
+}
+
+.modal-card label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.4rem;
+}
+
+.modal-card input,
+.modal-card textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #1E293B;
+    background: #F8FAFC;
+    outline: none;
+    margin-bottom: 1rem;
+}
+
+.modal-card textarea {
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.7rem;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: 1rem 1.4rem;
+    min-width: 320px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    color: white;
+    font-size: .92rem;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: toastIn .35s ease forwards;
+}
+
+.toast-success {
+    background: #08b67f;
+}
+
+@keyframes toastIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.appointment-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: .7rem;
+    margin-bottom: .6rem;
+}
+
+.cancel-form {
+    margin: 0;
+}
+
+.btn-cancel-appointment {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: #FEE2E2;
+    color: #991B1B;
+    font-size: 0.65rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.btn-cancel-appointment:hover {
+    background: #EF4444;
+    color: #FFFFFF;
 }
