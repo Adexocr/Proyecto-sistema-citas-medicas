@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<nav th:fragment="navbar">
+    <div class="nav-brand">
+        <img th:src="@{/logo.jpeg}"
+             alt="Logo"
+             onclick="window.location.href='/user/home'">
+        <span>
+            Clínica <em>Salud CR</em>
+        </span>
+    </div>
+
+    <div class="nav-links">
+        <a th:href="@{/user/home}"
+           th:classappend="${currentPage == 'home'} ? 'active'">
+            Inicio
+        </a>
+        <a th:href="@{/user/appointments}"
+           th:classappend="${currentPage == 'appointments'} ? 'active'">
+            Mis citas
+        </a>
+    </div>
+
+    <div class="nav-user">
+        <span th:text="${user.name}"></span>
+        <button onclick="logout()">
+            Cerrar sesión
+        </button>
+    </div>
+</nav>
+</body>
+</html>

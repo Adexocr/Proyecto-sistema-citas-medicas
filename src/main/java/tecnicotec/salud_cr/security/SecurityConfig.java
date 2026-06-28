@@ -21,12 +21,6 @@ import tecnicotec.salud_cr.service.UserService;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -36,7 +30,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(UserService userService) {
         return username -> userService.authenticate(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "Usuario no encontrado: " + username));
+                        "User not found: " + username));
     }
 
     @Bean
@@ -52,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm ->
@@ -63,15 +57,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         // Rutas públicas — Vistas
-                        .requestMatchers("/", "/login", "/home", "/admin/**", "/styles.css", "/logo.jpeg").permitAll()
+                        .requestMatchers("/", "/login", "/styles.css", "/logo.jpeg").permitAll()
                         // Solo ADMIN — API
                         .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/*/type").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
-
                         // Autenticado — API
                         .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
-                        // Todo lo demás autenticado
+                        // Cualquier otra autenticado
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class);

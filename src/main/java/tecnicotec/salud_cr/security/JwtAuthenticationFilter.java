@@ -4,65 +4,82 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private static final String JWT_COOKIE_NAME = "JWT";
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain)
             throws jakarta.servlet.ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        String token = getTokenFromRequest(request);
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        if (token != null) {
             try {
                 Jws<Claims> jws = jwtUtil.validateAndParse(token);
                 Claims claims = jws.getBody();
                 String username = claims.getSubject();
-
-                Object rolesObj = claims.get("roles");
-                @SuppressWarnings("unchecked")
-                List<String> roles = rolesObj instanceof List ? (List<String>) rolesObj : List.of();
-
-                Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
-                        .collect(Collectors.toList());
-
-                var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                var auth = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
                 SecurityContextHolder.getContext().setAuthentication(auth);
-
             } catch (JwtException ex) {
-                logger.debug("JWT inválido: " + ex.getMessage());
+                logger.debug("Invalid JWT: " + ex.getMessage());
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
+    // Primero se intenta sacar del Authorization header y sino se intenta con el HTTPOnly Cookie
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (JWT_COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        // El login no necesita token
         return path.startsWith("/api/auth");
     }
 }

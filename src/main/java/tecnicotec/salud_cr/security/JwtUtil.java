@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
-
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -28,12 +27,12 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String userId, List<String> roles) {
+    public String generateToken(String username, List<String> roles) {
         Instant now = Instant.now();
         Instant exp = now.plus(jwtExpirationMinutes, ChronoUnit.MINUTES);
 
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(username)
                 .claim("roles", roles)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(exp))
@@ -46,14 +45,6 @@ public class JwtUtil {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
-    }
-
-    public Optional<String> getUsername(String token) {
-        try {
-            return Optional.of(validateAndParse(token).getBody().getSubject());
-        } catch (JwtException e) {
-            return Optional.empty();
-        }
     }
 }
 

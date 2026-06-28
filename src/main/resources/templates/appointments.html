@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Citas - Salud CR</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h2>Mis citas médicas</h2>
+
+    <div class="appointments-board">
+
+        <div class="appointment-column scheduled">
+            <h3>Programadas</h3>
+
+            <div th:if="${#lists.isEmpty(appointments.?[status.name() == 'SCHEDULED'])}" class="empty-message">
+                No tienes citas programadas.
+            </div>
+
+            <div class="appointment-card"
+                 th:each="appointment : ${appointments}"
+                 th:if="${appointment.status.name() == 'SCHEDULED'}">
+                <h4>Cita programada</h4>
+                <p>
+                    <strong>Fecha:</strong>
+                    <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
+                        01/07/2026 09:00
+                    </span>
+                </p>
+                <p>
+                    <strong>Motivo:</strong>
+                    <span th:text="${appointment.reason != null && !appointment.reason.isBlank() ? appointment.reason : 'Sin motivo registrado'}">
+                        Consulta general
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="appointment-column cancelled">
+            <h3>Canceladas</h3>
+
+            <div th:if="${#lists.isEmpty(appointments.?[status.name() == 'CANCELLED'])}" class="empty-message">
+                No tienes citas canceladas.
+            </div>
+
+            <div class="appointment-card"
+                 th:each="appointment : ${appointments}"
+                 th:if="${appointment.status.name() == 'CANCELLED'}">
+                <h4>Cita cancelada</h4>
+                <p>
+                    <strong>Fecha:</strong>
+                    <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
+                        01/07/2026 09:00
+                    </span>
+                </p>
+                <p>
+                    <strong>Motivo:</strong>
+                    <span th:text="${appointment.reason != null && !appointment.reason.isBlank() ? appointment.reason : 'Sin motivo registrado'}">
+                        Consulta cancelada
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="appointment-column completed">
+            <h3>Completadas</h3>
+
+            <div th:if="${#lists.isEmpty(appointments.?[status.name() == 'COMPLETED'])}" class="empty-message">
+                No tienes citas completadas.
+            </div>
+
+            <div class="appointment-card"
+                 th:each="appointment : ${appointments}"
+                 th:if="${appointment.status.name() == 'COMPLETED'}">
+                <h4>Cita completada</h4>
+                <p>
+                    <strong>Fecha:</strong>
+                    <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
+                        01/07/2026 09:00
+                    </span>
+                </p>
+                <p>
+                    <strong>Motivo:</strong>
+                    <span th:text="${appointment.reason != null && !appointment.reason.isBlank() ? appointment.reason : 'Sin motivo registrado'}">
+                        Control médico
+                    </span>
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    async function logout() {
+        await fetch('/api/auth/logout', {
+            method: 'POST'
+        });
+
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+</script>
+
+</body>
+</html>

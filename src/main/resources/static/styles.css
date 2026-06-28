@@ -346,3 +346,117 @@ body::after {
     pointer-events: none;
     z-index: 0;
 }
+
+/* ── CITAS MÉDICAS ── */
+.appointments-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.3rem;
+    margin-top: 1rem;
+}
+
+.appointment-column {
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 20px rgba(27,46,107,0.09);
+    min-height: 320px;
+}
+
+.appointment-column h3 {
+    font-size: 1rem;
+    color: #1B2E6B;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #E2E8F0;
+}
+
+.appointment-column.scheduled {
+    border-top: 4px solid #2ABFBF;
+}
+
+.appointment-column.cancelled {
+    border-top: 4px solid #F4623A;
+}
+
+.appointment-column.completed {
+    border-top: 4px solid #10B981;
+}
+
+.appointment-card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.9rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.appointment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(27,46,107,0.12);
+}
+
+.appointment-card h4 {
+    color: #1B2E6B;
+    font-size: 0.98rem;
+    margin-bottom: 0.6rem;
+}
+
+.appointment-card p {
+    color: #475569;
+    font-size: 0.87rem;
+    margin-bottom: 0.35rem;
+    line-height: 1.4;
+}
+
+.appointment-card strong {
+    color: #334155;
+}
+
+.empty-message {
+    background: #F8FAFC;
+    color: #64748B;
+    border: 1px dashed #CBD5E1;
+    border-radius: 10px;
+    padding: 1rem;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+@media (max-width: 850px) {
+    .appointments-board {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── MENÚ DE NAVEGACIÓN ───────────────────────── */
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: #F4623A;
+}
+
+.nav-links a.active {
+    color: #F4623A;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+}

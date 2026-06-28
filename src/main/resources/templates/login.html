@@ -43,14 +43,11 @@
 
         if (response.ok) {
             const data = await response.json();
-            // Guardar token en sessionStorage para usarlo en las vistas
-            sessionStorage.setItem('token', data.token);
-            sessionStorage.setItem('username', username);
             // Redirigir según rol
             if (data.roles.includes('ADMIN')) {
                 window.location.href = '/admin/usuarios';
             } else {
-                window.location.href = '/home';
+                window.location.href = '/user/home';
             }
         } else {
             alert('Credenciales inválidas');

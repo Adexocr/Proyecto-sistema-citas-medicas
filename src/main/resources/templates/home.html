@@ -7,17 +7,10 @@
 </head>
 <body>
 
-<nav>
-    <div class="nav-brand">
-        <img th:src="@{/logo.jpeg}" alt="Logo">
-        <span>Clínica <em>Salud CR</em></span>
-    </div>
-    <span id="bienvenida"></span>
-    <button onclick="logout()">Cerrar sesión</button>
-</nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <h2>Inicio</h2>
+    <h2 onClick="window.location.href = '/user/home';">Inicio</h2>
     <div class="home-card">
         <p>Bienvenido al sistema de gestión de citas médicas de Clínica Salud CR.</p>
         <p>Desde aquí podrás consultar y gestionar tus citas médicas.</p>
@@ -25,18 +18,15 @@
 </div>
 
 <script>
-    const token = sessionStorage.getItem('token');
-    const username = sessionStorage.getItem('username');
-
-    if (!token) {
-        window.location.href = '/login';
-    }
-
-    document.getElementById('bienvenida').textContent = 'Hola, ' + username;
-
-    function logout() {
-        sessionStorage.clear();
-        window.location.href = '/login';
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST'
+            });
+        } finally {
+            // Se saca al usuario aunque el servidor este abajo
+            window.location.href = '/login';
+        }
     }
 </script>
 

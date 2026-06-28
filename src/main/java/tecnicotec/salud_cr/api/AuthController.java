@@ -1,5 +1,8 @@
 package tecnicotec.salud_cr.api;
 
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import tecnicotec.salud_cr.data.User;
 import tecnicotec.salud_cr.security.JwtUtil;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -26,16 +30,12 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    public static record LoginRequest(String username, String password) {
-    }
+    public record LoginRequest(String username, String password) {}
 
-    public static record AuthResponse(String token, String tokenType, String expiresAt, List<String> roles) {
-    }
-
-
-    // POST /api/auth/login
+    public record AuthResponse(String token, String tokenType, String expiresAt, List<String> roles) {}
+    
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.username, req.password)
         );
@@ -45,12 +45,34 @@ public class AuthController {
                 .map(a -> a.getAuthority().replace("ROLE_", ""))
                 .collect(Collectors.toList());
 
-        String token = jwtUtil.generateToken(String.valueOf(user.getId()), roles);
+        String token = jwtUtil.generateToken(user.getUsername(), roles);
+        ResponseCookie cookie = ResponseCookie.from("JWT", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(Duration.ofMinutes(60))
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         var claims = jwtUtil.validateAndParse(token).getBody();
         String expIso = Instant.ofEpochMilli(claims.getExpiration().getTime())
                 .atOffset(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_DATE_TIME);
 
         return ResponseEntity.ok(new AuthResponse(token, "Bearer", expIso, roles));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("JWT", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.noContent().build();
     }
 }
