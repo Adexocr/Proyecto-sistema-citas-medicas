@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Salud CR - Iniciar Sesión</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav>
+    <div class="nav-brand">
+        <img th:src="@{/images/logo.jpeg}" alt="Logo">
+        <span>Clínica <em>Salud CR</em></span>
+    </div>
+</nav>
+
+<div class="container login-wrapper">
+    <img class="logo-login" th:src="@{/images/logo.jpeg}" alt="Salud CR">
+    <h1>Bienvenido a <span>Salud CR</span></h1>
+
+    <form id="loginForm">
+        <div>
+            <label>Usuario</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label>Contraseña</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="button" onclick="login()">Ingresar</button>
+    </form>
+</div>
+
+<script>
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Redirigir según rol
+            if (data.roles.includes('ADMIN')) {
+                window.location.href = '/admin/home';
+            } else {
+                window.location.href = '/user/home';
+            }
+        } else {
+            alert('Credenciales inválidas');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <nav th:fragment="navbar">
+            <div class="nav-brand">
+                <img th:src="@{/images/logo.jpeg}"
+                     alt="Logo"
+                     onclick="window.location.href='/user/home'">
+                <span>
+                    Clínica <em>Salud CR</em>
+                </span>
+            </div>
+
+            <div class="nav-links">
+                <a th:href="${user.type.name() == 'ADMIN'} ? @{/admin/home} : @{/user/home}"
+                   th:classappend="${currentPage == 'home'} ? 'active'">
+                    Inicio
+                </a>
+                <a th:href="${user.type.name() == 'ADMIN'} ? @{/admin/appointments} : @{/user/appointments}"
+                   th:classappend="${currentPage == 'appointments'} ? 'active'"
+                   th:text="${user.type.name() == 'ADMIN'} ? 'Gestión de citas' : 'Mis citas'">
+                </a>
+                <a th:if="${user.type.name() == 'ADMIN'}" th:href="@{/admin/users}"
+                   th:classappend="${currentPage == 'users'} ? 'active'">
+                    Gestionar usuarios
+                </a>
+                <a th:if="${user.type.name() == 'ADMIN'}" th:href="@{/admin/appointments/agenda}"
+                   th:classappend="${currentPage == 'agenda'} ? 'active'">
+                    Agenda
+                </a>
+            </div>
+
+            <div class="nav-user">
+                <span th:text="${user.name}"></span>
+                <button onclick="logout()">
+                    Cerrar sesión
+                </button>
+            </div>
+        </nav>
+    </body>
+</html>

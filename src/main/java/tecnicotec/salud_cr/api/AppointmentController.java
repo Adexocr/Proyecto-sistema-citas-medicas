@@ -8,11 +8,11 @@ import tecnicotec.salud_cr.service.AppointmentService;
 
 @RestController
 @RequestMapping("/api/v1/users/{userId}/appointments")
-public class AppointmentRESTController {
+public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
-    public AppointmentRESTController(AppointmentService appointmentService) {
+    public AppointmentController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
     }
 
