@@ -4,11 +4,13 @@ import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import tecnicotec.salud_cr.data.Appointment;
 import tecnicotec.salud_cr.data.User;
+import tecnicotec.salud_cr.dto.AgendaRequestDto;
 import tecnicotec.salud_cr.dto.AppointmentDto;
 import tecnicotec.salud_cr.dto.AppointmentWithUserInfoDto;
 import tecnicotec.salud_cr.repository.AppointmentRepository;
 import tecnicotec.salud_cr.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,5 +141,60 @@ public class AppointmentService {
             throw new RuntimeException("Can't use a past date.");
         }
         return appointmentRepository.findByAppointmentDateAndStatus(appointmentDate, Appointment.Status.SCHEDULED);
+    }
+
+    /**
+     * month es 1-12 y week puede ser null
+     * Semana 1 = días 1 al 7 del mes
+     * Semana 2 = días 8 al 14
+     * Semana 3 = días 15 al 21
+     * Semana 4 = días 22 al 28
+     * Semana 5 = días 29 al final del mes
+     * **/
+    public List<AppointmentWithUserInfoDto> findScheduledForAgenda(AgendaRequestDto agendaRequestDto) {
+        int year = LocalDate.now().getYear();
+
+        LocalDate startDate;
+        LocalDate endDate;
+        Integer week = agendaRequestDto.getWeek();
+        Integer month = agendaRequestDto.getMonth();
+
+        if (week == null) {
+            startDate = LocalDate.of(year, month, 1);
+            endDate = startDate.plusMonths(1);
+        } else {
+            LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+
+            startDate = firstDayOfMonth.plusWeeks(week - 1L);
+            endDate = startDate.plusWeeks(1);
+
+            LocalDate firstDayNextMonth = firstDayOfMonth.plusMonths(1);
+
+            if (endDate.isAfter(firstDayNextMonth)) {
+                endDate = firstDayNextMonth;
+            }
+        }
+
+        List<Appointment> agendaAppointments = appointmentRepository.findAllByStatusAndAppointmentDateGreaterThanEqualAndAppointmentDateLessThanOrderByAppointmentDateAsc(
+                Appointment.Status.SCHEDULED,
+                startDate.atStartOfDay(),
+                endDate.atStartOfDay()
+        );
+
+        return agendaAppointments.stream()
+                .map(appointment -> {
+                    User patient = userRepository.findById(appointment.getUserId())
+                            .orElseThrow();
+                    return new AppointmentWithUserInfoDto(
+                            appointment.getId(),
+                            appointment.getUserId(),
+                            patient.getName(),
+                            appointment.getAppointmentDate(),
+                            appointment.getReason(),
+                            appointment.getStatus(),
+                            appointment.getCreatedAt()
+                    );
+                })
+                .toList();
     }
 }

@@ -1,10 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Agenda - Salud CR</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body th:attr="data-is-admin=${user.type.name() == 'ADMIN'}">
 
-</body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container">
+        <div class="appointments-header">
+            <h2>Agenda médica</h2>
+        </div>
+        <div class="agenda-filter-card">
+            <form th:action="@{/admin/appointments/agenda}" method="post" class="agenda-filter-form">
+                <div>
+                    <label>Mes</label>
+                    <select name="month" required>
+                        <option value="">Seleccione un mes</option>
+                        <option value="1" th:selected="${selectedMonth == 1}">Enero</option>
+                        <option value="2" th:selected="${selectedMonth == 2}">Febrero</option>
+                        <option value="3" th:selected="${selectedMonth == 3}">Marzo</option>
+                        <option value="4" th:selected="${selectedMonth == 4}">Abril</option>
+                        <option value="5" th:selected="${selectedMonth == 5}">Mayo</option>
+                        <option value="6" th:selected="${selectedMonth == 6}">Junio</option>
+                        <option value="7" th:selected="${selectedMonth == 7}">Julio</option>
+                        <option value="8" th:selected="${selectedMonth == 8}">Agosto</option>
+                        <option value="9" th:selected="${selectedMonth == 9}">Septiembre</option>
+                        <option value="10" th:selected="${selectedMonth == 10}">Octubre</option>
+                        <option value="11" th:selected="${selectedMonth == 11}">Noviembre</option>
+                        <option value="12" th:selected="${selectedMonth == 12}">Diciembre</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Semana</label>
+                    <select name="week">
+                        <option value="">Todo el mes</option>
+                        <option value="1" th:selected="${selectedWeek == 1}">Semana 1</option>
+                        <option value="2" th:selected="${selectedWeek == 2}">Semana 2</option>
+                        <option value="3" th:selected="${selectedWeek == 3}">Semana 3</option>
+                        <option value="4" th:selected="${selectedWeek == 4}">Semana 4</option>
+                        <option value="5" th:selected="${selectedWeek == 5}">Semana 5</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Consultar agenda
+                </button>
+            </form>
+        </div>
+
+        <div class="agenda-summary">
+            <p>
+                <strong>Citas programadas:</strong>
+                <span th:text="${#lists.size(appointments)}">0</span>
+            </p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(appointments)}" class="empty-message agenda-empty">
+            No hay citas programadas para el periodo seleccionado.
+        </div>
+
+        <div class="agenda-list" th:if="${!#lists.isEmpty(appointments)}">
+            <div class="agenda-item"
+                 th:each="appointment : ${appointments}">
+                <div class="agenda-date-box">
+                    <span class="agenda-day"
+                          th:text="${#temporals.format(appointment.appointmentDate, 'dd')}">
+                        01
+                    </span>
+                    <span class="agenda-month"
+                          th:text="${#temporals.format(appointment.appointmentDate, 'MMM')}">
+                        Jul
+                    </span>
+                </div>
+                <div class="agenda-content">
+                    <div class="agenda-content-header">
+                        <h4 th:text="${appointment.patientName}">
+                            Nombre paciente
+                        </h4>
+                        <span class="agenda-time"
+                              th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">
+                            09:00
+                        </span>
+                    </div>
+                    <p>
+                        <strong>Fecha completa:</strong>
+                        <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
+                            01/07/2026 09:00
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Motivo:</strong>
+                        <span th:text="${appointment.reason != null && !appointment.reason.isBlank() ? appointment.reason : 'Sin motivo registrado'}">
+                            Consulta general
+                        </span>
+                    </p>
+                    <span class="agenda-status">
+                        Programada
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/app.js}"></script>
+
+    </body>
 </html>

@@ -15,4 +15,9 @@ public interface AppointmentRepository extends CrudRepository<Appointment, Long>
             Appointment.Status status
     );
     List<Appointment> findByUserId(Long id);
+    List<Appointment> findAllByStatusAndAppointmentDateGreaterThanEqualAndAppointmentDateLessThanOrderByAppointmentDateAsc(
+            Appointment.Status status,
+            LocalDateTime startDate,
+            LocalDateTime endDate
+    );
 }

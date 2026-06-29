@@ -6,9 +6,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tecnicotec.salud_cr.data.User;
+import tecnicotec.salud_cr.dto.AgendaRequestDto;
 import tecnicotec.salud_cr.dto.AppointmentDto;
 import tecnicotec.salud_cr.service.AppointmentService;
 import tecnicotec.salud_cr.service.UserService;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Controller
 @RequestMapping("/admin/appointments")
@@ -75,5 +79,30 @@ public class AdminAppointmentMVCController {
                 "Cita médica completada."
         );
         return "redirect:/admin/appointments";
+    }
+
+    @PostMapping("/agenda")
+    public String findInAgenda(
+            @AuthenticationPrincipal User user,
+            @ModelAttribute AgendaRequestDto agendaRequestDto,
+            Model model
+    ) {
+        model.addAttribute("appointments", appointmentService.findScheduledForAgenda(agendaRequestDto));
+        model.addAttribute("user", user);
+        model.addAttribute("selectedMonth", agendaRequestDto.getMonth());
+        model.addAttribute("selectedWeek", agendaRequestDto.getWeek());
+        model.addAttribute("currentPage", "agenda");
+        return "admin/agenda";
+    }
+
+    @GetMapping("/agenda")
+    public String getAgenda(
+            @AuthenticationPrincipal User user,
+            Model model
+    ) {
+        model.addAttribute("appointments", Collections.emptyList());
+        model.addAttribute("user", user);
+        model.addAttribute("currentPage", "agenda");
+        return "admin/agenda";
     }
 }
