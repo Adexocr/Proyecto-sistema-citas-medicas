@@ -7,6 +7,7 @@ import tecnicotec.salud_cr.data.User;
 import tecnicotec.salud_cr.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,10 +55,14 @@ public class UserService {
 
     // Eliminar usuario (para admin)
     public void deleteById(Long id) {
-        if  (!userRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("User does not exist");
         }
         userRepository.deleteById(id);
-        }
     }
+
+    public List<User> findAllByType(User.Type type) {
+        return userRepository.findAllByType(type);
+    }
+}
 

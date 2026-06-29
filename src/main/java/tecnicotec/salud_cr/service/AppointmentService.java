@@ -1,9 +1,13 @@
 package tecnicotec.salud_cr.service;
 
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import tecnicotec.salud_cr.data.Appointment;
+import tecnicotec.salud_cr.data.User;
 import tecnicotec.salud_cr.dto.AppointmentDto;
+import tecnicotec.salud_cr.dto.AppointmentWithUserInfoDto;
 import tecnicotec.salud_cr.repository.AppointmentRepository;
+import tecnicotec.salud_cr.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,13 +18,35 @@ import java.util.Optional;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository,  UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Appointment> findByUserId(Long userId) {
         return new ArrayList<>(appointmentRepository.findByUserId(userId));
+    }
+
+    public List<AppointmentWithUserInfoDto> findAll() {
+        List<Appointment> appointments = new ArrayList<>();
+        appointmentRepository.findAll().forEach(appointments::add);
+        return appointments.stream()
+                .map(appointment -> {
+                    User user = userRepository.findById(appointment.getUserId())
+                            .orElseThrow();
+                    return new AppointmentWithUserInfoDto(
+                            appointment.getId(),
+                            appointment.getUserId(),
+                            user.getName(),
+                            appointment.getAppointmentDate(),
+                            appointment.getReason(),
+                            appointment.getStatus(),
+                            appointment.getCreatedAt()
+                    );
+                })
+                .toList();
     }
 
     public void create(Long userId, AppointmentDto appointmentDto) {
@@ -58,6 +84,26 @@ public class AppointmentService {
             } else {
                 throw new RuntimeException("Invalid user id");
             }
+        });
+    }
+
+    public void cancelAnyById(Long id) {
+        appointmentRepository.findById(id).ifPresent(appointment -> {
+            if (appointment.getAppointmentDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Can't cancel a past appointment.");
+            }
+            appointment.setStatus(Appointment.Status.CANCELLED);
+            appointmentRepository.save(appointment);
+        });
+    }
+
+    public void completeAppointment(Long id) {
+        appointmentRepository.findById(id).ifPresent(appointment -> {
+            if (appointment.getAppointmentDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Can't complete a past appointment.");
+            }
+            appointment.setStatus(Appointment.Status.COMPLETED);
+            appointmentRepository.save(appointment);
         });
     }
 

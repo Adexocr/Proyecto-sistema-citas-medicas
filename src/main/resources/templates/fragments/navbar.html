@@ -3,7 +3,7 @@
     <body>
         <nav th:fragment="navbar">
             <div class="nav-brand">
-                <img th:src="@{/logo.jpeg}"
+                <img th:src="@{/images/logo.jpeg}"
                      alt="Logo"
                      onclick="window.location.href='/user/home'">
                 <span>
@@ -12,13 +12,17 @@
             </div>
 
             <div class="nav-links">
-                <a th:href="@{/user/home}"
+                <a th:href="${user.type.name() == 'ADMIN'} ? @{/admin/home} : @{/user/home}"
                    th:classappend="${currentPage == 'home'} ? 'active'">
                     Inicio
                 </a>
-                <a th:href="@{/user/appointments}"
-                   th:classappend="${currentPage == 'appointments'} ? 'active'">
-                    Mis citas
+                <a th:href="${user.type.name() == 'ADMIN'} ? @{/admin/appointments} : @{/user/appointments}"
+                   th:classappend="${currentPage == 'appointments'} ? 'active'"
+                   th:text="${user.type.name() == 'ADMIN'} ? 'Gestión de citas' : 'Mis citas'">
+                </a>
+                <a th:if="${user.type.name() == 'ADMIN'}" th:href="@{/admin/users}"
+                   th:classappend="${currentPage == 'users'} ? 'active'">
+                    Gestionar usuarios
                 </a>
             </div>
 
@@ -29,17 +33,5 @@
                 </button>
             </div>
         </nav>
-        <script>
-            async function logout() {
-                try {
-                    await fetch('/api/auth/logout', {
-                        method: 'POST'
-                    });
-                } finally {
-                    // Se saca al usuario aunque el servidor este abajo
-                    window.location.href = '/login';
-                }
-            }
-        </script>
     </body>
 </html>

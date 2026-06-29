@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <title>Mis Citas - Salud CR</title>
-        <link rel="stylesheet" th:href="@{/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
     </head>
-    <body>
+    <body th:attr="data-is-admin=${user.type.name() == 'ADMIN'}">
 
         <div th:replace="~{fragments/navbar :: navbar}"></div>
 
@@ -16,7 +16,7 @@
 
         <div class="container">
             <div class="appointments-header">
-                <h2>Mis citas médicas</h2>
+                <h2 th:text="${user.type.name() == 'ADMIN'} ? 'Cuaderno de citas' : 'Mis citas médicas'"></h2>
                 <button class="btn-primary" onclick="openCreateAppointmentModal()">
                     Nueva cita +
                 </button>
@@ -35,6 +35,10 @@
                          th:each="appointment : ${appointments}"
                          th:if="${appointment.status.name() == 'CANCELLED'}">
                         <h4>Cita cancelada</h4>
+                        <p th:if="${user.type.name() == 'ADMIN'}">
+                            <strong>Paciente:</strong>
+                            <span th:text="${appointment.patientName}"></span>
+                        </p>
                         <p>
                             <strong>Fecha:</strong>
                             <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
@@ -68,10 +72,27 @@
                                 <button type="button"
                                         class="btn-edit-appointment"
                                         title="Editar cita"
-                                        th:attr="onclick=|openEditAppointmentModal('${appointment.id}', '${#temporals.format(appointment.appointmentDate, 'yyyy-MM-dd''T''HH:mm')}', '${appointment.reason != null ? appointment.reason : ''}')|">
+                                        th:attr="onclick=|openEditAppointmentModal(
+                                            '${appointment.id}',
+                                            '${#temporals.format(appointment.appointmentDate, 'yyyy-MM-dd''T''HH:mm')}',
+                                            '${appointment.reason != null ? appointment.reason : ''}',
+                                            '${appointment.userId}')|">
                                     ✎
                                 </button>
-                                <form th:action="@{/user/appointments/{id}/cancel(id=${appointment.id})}"
+                                <form th:if="${user.type.name() == 'ADMIN'}"
+                                      th:action="@{/admin/appointments/{id}/complete(id=${appointment.id})}"
+                                      method="post"
+                                      class="complete-form">
+                                    <button type="submit"
+                                            class="btn-complete-appointment"
+                                            title="Completar cita"
+                                            onclick="return confirm('¿Deseas marcar esta cita como completada?')">
+                                        ✓
+                                    </button>
+                                </form>
+                                <form th:action="${user.type.name() == 'ADMIN'}
+                                                ? @{/admin/appointments/{id}/cancel(id=${appointment.id})}
+                                                : @{/user/appointments/{id}/cancel(id=${appointment.id})}"
                                       method="post"
                                       class="cancel-form">
                                     <button type="submit"
@@ -84,6 +105,10 @@
                             </div>
 
                         </div>
+                        <p th:if="${user.type.name() == 'ADMIN'}">
+                            <strong>Paciente:</strong>
+                            <span th:text="${appointment.patientName}"></span>
+                        </p>
                         <p>
                             <strong>Fecha:</strong>
                             <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}"></span>
@@ -106,6 +131,10 @@
                          th:each="appointment : ${appointments}"
                          th:if="${appointment.status.name() == 'COMPLETED'}">
                         <h4>Cita completada</h4>
+                        <p th:if="${user.type.name() == 'ADMIN'}">
+                            <strong>Paciente:</strong>
+                            <span th:text="${appointment.patientName}"></span>
+                        </p>
                         <p>
                             <strong>Fecha:</strong>
                             <span th:text="${#temporals.format(appointment.appointmentDate, 'dd/MM/yyyy HH:mm')}">
@@ -127,13 +156,24 @@
         <div id="appointmentModal" class="modal-overlay">
             <div class="modal-card">
                 <h3 id="modalTitle">Nueva cita médica</h3>
-                <form id="appointmentForm" th:action="@{/user/appointments}" method="post">
+                <form id="appointmentForm" th:action="${user.type.name() == 'ADMIN'} ? @{/admin/appointments} : @{/user/appointments}" method="post">
+                    <div id="patientSelect" th:if="${user.type.name() == 'ADMIN'}">
+                        <label>Paciente</label>
+                        <select name="userId" id="selectUserId">
+                            <option value="">Seleccione un paciente</option>
+                            <option th:each="patient : ${patients}"
+                                    th:value="${patient.id}"
+                                    th:text="${patient.name}">
+                                Nombre paciente
+                            </option>
+                        </select>
+                    </div>
                     <div>
                         <label>Fecha y hora</label>
                         <input type="datetime-local" id="appointmentDate" name="appointmentDate" required>
                     </div>
                     <div>
-                        <label>Descripción</label>
+                        <label>Motivo</label>
                         <textarea id="reason" name="reason" rows="4" required></textarea>
                     </div>
                     <div class="modal-actions">
@@ -155,25 +195,29 @@
             const reasonInput = document.getElementById("reason");
             const modalTitle = document.getElementById("modalTitle");
             const modalSubmitButton = document.getElementById("modalSubmitButton");
+            const patientSelect = document.getElementById("selectUserId");
+            const isAdmin = document.body.dataset.isAdmin === "true";
 
             function openCreateAppointmentModal() {
                 modalTitle.textContent = "Nueva cita médica";
                 modalSubmitButton.textContent = "Guardar";
-                appointmentForm.action = "/user/appointments";
+                appointmentForm.action = `/${isAdmin ? 'admin' : 'user'}/appointments`;
                 appointmentDateInput.value = "";
                 reasonInput.value = "";
                 appointmentDateInput.min = getCurrentDateTimeLocal();
+                patientSelect.style.display = "block";
                 appointmentModal.classList.add("show");
             }
 
-            function openEditAppointmentModal(id, appointmentDate, reason) {
-                console.log("test")
+            function openEditAppointmentModal(id, appointmentDate, reason, userId) {
                 modalTitle.textContent = "Editar cita médica";
                 modalSubmitButton.textContent = "Guardar cambios";
-                appointmentForm.action = "/user/appointments/" + id + "/edit";
+                appointmentForm.action = `/${isAdmin ? 'admin' : 'user'}/appointments/${id}/edit`;
                 appointmentDateInput.value = appointmentDate;
                 reasonInput.value = reason || "";
                 appointmentDateInput.min = getCurrentDateTimeLocal();
+                patientSelect.value = userId;
+                patientSelect.style.display = "none";
                 appointmentModal.classList.add("show");
             }
 
@@ -198,6 +242,6 @@
                 }, 3000);
             });
         </script>
-
+        <script th:src="@{/js/app.js}"></script>
     </body>
 </html>

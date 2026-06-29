@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,36 +35,33 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring()
-                .requestMatchers("/styles.css", "/logo.jpeg");
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas — API
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         // Rutas públicas — Vistas
-                        .requestMatchers("/", "/login", "/styles.css", "/logo.jpeg").permitAll()
+                        .requestMatchers("/", "/login").permitAll()
+                        // Rutas estaticas
+                        .requestMatchers("/css/**", "/images/**", "/js/**").permitAll()
+                        // Rutas de ADMIN
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Rutas de REGULAR
+                        .requestMatchers("/user/**").hasRole("REGULAR")
+                        // Públicas — API
+                        .requestMatchers("/api/auth/login").permitAll()
                         // Solo ADMIN — API
                         .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/*/type").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
-                        // Autenticado — API
-                        .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
                         // Cualquier otra autenticado
                         .anyRequest().authenticated()
                 )

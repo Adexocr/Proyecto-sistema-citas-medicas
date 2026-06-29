@@ -11,16 +11,16 @@ import tecnicotec.salud_cr.service.AppointmentService;
 
 @Controller
 @RequestMapping("/user/appointments")
-public class AppointmentMVCController {
+public class UserAppointmentMVCController {
 
     private final AppointmentService appointmentService;
 
-    public AppointmentMVCController(AppointmentService appointmentService) {
+    public UserAppointmentMVCController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
     }
 
     @GetMapping
-    public String userAppointments(Model model, @AuthenticationPrincipal User user) {
+    public String appointments(Model model, @AuthenticationPrincipal User user) {
         model.addAttribute("user",  user);
         model.addAttribute("appointments", appointmentService.findByUserId(user.getId()));
         model.addAttribute("currentPage", "appointments");

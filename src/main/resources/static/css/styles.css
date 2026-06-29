@@ -338,7 +338,7 @@ body::after {
     right: -40px;
     width: 280px;
     height: 280px;
-    background-image: url('/logo.jpeg');
+    background-image: url('/images/logo.jpeg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -530,7 +530,8 @@ body::after {
 }
 
 .modal-card input,
-.modal-card textarea {
+.modal-card textarea,
+.modal-card select {
     width: 100%;
     padding: 0.7rem 1rem;
     border: 1.5px solid #CBD5E1;
@@ -599,7 +600,8 @@ body::after {
     align-items: center;
 }
 
-.cancel-form {
+.cancel-form,
+.complete-form {
     margin: 0;
     padding: 0;
 }
@@ -645,5 +647,23 @@ body::after {
 
 .btn-edit-appointment:hover {
     background: #0284C7;
+    color: #FFFFFF;
+}
+
+.btn-complete-appointment {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: #DCFCE7;
+    color: #166534;
+    font-size: 0.70rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.btn-complete-appointment:hover {
+    background: #10B981;
     color: #FFFFFF;
 }
