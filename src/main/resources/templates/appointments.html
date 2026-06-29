@@ -205,7 +205,7 @@
                 appointmentDateInput.value = "";
                 reasonInput.value = "";
                 appointmentDateInput.min = getCurrentDateTimeLocal();
-                patientSelect.style.display = "block";
+                if (isAdmin) patientSelect.style.display = "block";
                 appointmentModal.classList.add("show");
             }
 
@@ -216,8 +216,10 @@
                 appointmentDateInput.value = appointmentDate;
                 reasonInput.value = reason || "";
                 appointmentDateInput.min = getCurrentDateTimeLocal();
-                patientSelect.value = userId;
-                patientSelect.style.display = "none";
+                if (isAdmin) {
+                    patientSelect.value = userId;
+                    patientSelect.style.display = "none";
+                }
                 appointmentModal.classList.add("show");
             }
 
